@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Computer Club Admin</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+            color: #1f2937
+        }
+
+        header {
+            background: #111827;
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 18px
+        }
+
+        header button {
+            background: #374151
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 16px
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px
+        }
+
+        .login-card {
+            width: min(400px, 100%);
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .08)
+        }
+
+        .login-card h1 {
+            margin-top: 0
+        }
+
+        .login-card label {
+            display: block;
+            margin: 12px 0 6px
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 10px
+        }
+
+        .login-card button {
+            width: 100%;
+            margin-top: 16px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06)
+        }
+
+        .metric {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 8px
+        }
+
+        .section {
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06)
+        }
+
+        .hall {
+            margin-bottom: 20px
+        }
+
+        .hall h3 {
+            margin: 0 0 10px
+        }
+
+        .devices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .device {
+            border: 0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            min-width: 120px;
+            cursor: pointer;
+            text-align: left;
+            color: #111827
+        }
+
+        .free {
+            background: #e5f3e8
+        }
+
+        .busy {
+            background: #f3d9d9
+        }
+
+        .reserved {
+            background: #f3e7d3
+        }
+
+        .paused {
+            background: #e7e0f0
+        }
+
+        .expiring {
+            background: #f3eecb
+        }
+
+        .maintenance {
+            background: #e5e7eb
+        }
+
+        .offline {
+            background: #dce2e8
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: top
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600
+        }
+
+        input, select, button {
+            font: inherit
+        }
+
+        input, select {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer
+        }
+
+        button.secondary {
+            background: #6b7280
+        }
+
+        button.danger {
+            background: #dc2626
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .muted {
+            color: #6b7280
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            background: #fff;
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 8px;
+            z-index: 10
+        }
+
+        .tab {
+            background: transparent;
+            color: #374151
+        }
+
+        .tab.active {
+            background: #2563eb;
+            color: #fff
+        }
+
+        .tab-page {
+            display: none
+        }
+
+        .tab-page.active {
+            display: block
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100
+        }
+
+        .modal > div {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: min(600px, 90vw);
+            max-height: 90vh;
+            overflow: auto
+        }
+
+        .error {
+            color: #b91c1c;
+            margin-top: 8px
+        }
+
+        .ok {
+            color: #166534;
+            margin-top: 8px
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #111827
+        }
+
+        .status.free {
+            background: #e5f3e8
+        }
+
+        .status.busy {
+            background: #f3d9d9
+        }
+
+        .status.reserved {
+            background: #f3e7d3
+        }
+
+        .status.paused {
+            background: #e7e0f0
+        }
+
+        .status.expiring {
+            background: #f3eecb
+        }
+
+        .status.maintenance {
+            background: #e5e7eb
+        }
+
+        .status.offline {
+            background: #dce2e8
+        }
+
+        .status.finished {
+            background: #ececec
+        }
+
+        .status.cancelled {
+            background: #f0dddd
+        }
+
+        .empty {
+            padding: 20px;
+            text-align: center;
+            color: #6b7280
+        }
+
+        @media (max-width: 700px) {
+            th:nth-child(2), td:nth-child(2) {
+                display: none
+            }
+
+            .tabs {
+                position: static
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="login-page" class="login-page hidden">
+    <div class="login-card">
+        <h1>Computer Club</h1>
+        <p class="muted">Вход администратора</p>
+        <form id="login-form">
+            <label for="login">Логин</label>
+            <input id="login" autocomplete="username" required>
+            <label for="password">Пароль</label>
+            <input id="password" type="password" autocomplete="current-password" required>
+            <button type="submit">Войти</button>
+            <div id="login-error" class="error"></div>
+        </form>
+    </div>
+</div>
+
+<div id="app" class="hidden">
+    <header>
+        <div class="brand">Computer Club Admin</div>
+        <button class="secondary" onclick="logout()">Выйти</button>
+    </header>
+
+    <main>
+        <div id="message"></div>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="dashboard">Дашборд</button>
+            <button class="tab" data-tab="clients">Клиенты</button>
+            <button class="tab" data-tab="club">Залы и устройства</button>
+            <button class="tab" data-tab="sessions">Сессии</button>
+        </nav>
+
+        <section id="tab-dashboard" class="tab-page active">
+            <div class="grid" id="metrics">
+                <div class="card">Всего
+                    <div class="metric" id="m-total">0</div>
+                </div>
+                <div class="card">Свободно
+                    <div class="metric" id="m-free">0</div>
+                </div>
+                <div class="card">Занято
+                    <div class="metric" id="m-busy">0</div>
+                </div>
+                <div class="card">Бронь
+                    <div class="metric" id="m-reserved">0</div>
+                </div>
+                <div class="card">Пауза
+                    <div class="metric" id="m-paused">0</div>
+                </div>
+                <div class="card">Истекает
+                    <div class="metric" id="m-expiring">0</div>
+                </div>
+                <div class="card">ТО
+                    <div class="metric" id="m-maintenance">0</div>
+                </div>
+                <div class="card">Оффлайн
+                    <div class="metric" id="m-offline">0</div>
+                </div>
+            </div>
+
+            <section class="section">
+                <div class="toolbar">
+                    <h2>Карта клуба</h2>
+                    <div class="row"><span class="muted">Автообновление: 30 сек.</span>
+                        <button onclick="refreshDashboard()">Обновить</button>
+                    </div>
+                </div>
+                <div id="club-map"></div>
+            </section>
+        </section>
+
+        <section id="tab-clients" class="tab-page">
+            <section class="section">
+                <div class="toolbar">
+                    <h2>Клиенты</h2>
+                    <div class="row">
+                        <input id="client-search" placeholder="Телефон или ФИО">
+                        <button onclick="loadClients()">Найти</button>
+                        <button onclick="openClientModal()">Добавить</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody id="clients-table"></tbody>
+                </table>
+            </section>
+        </section>
+
+        <section id="tab-club" class="tab-page">
+            <section class="section">
+                <div class="toolbar">
+                    <h2>Залы</h2>
+                    <button onclick="openHallModal()">Добавить зал</button>
+                </div>
+                <div id="hall-admin"></div>
+            </section>
+
+            <section class="section">
+                <div class="toolbar">
+                    <h2>Устройства</h2>
+                    <button onclick="openDeviceModal()">Добавить устройство</button>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Зал</th>
+                        <th>Устройство</th>
+                        <th>Состояние</th>
+                        <th>Сессия</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody id="devices-table"></tbody>
+                </table>
+            </section>
+        </section>
+
+        <section id="tab-sessions" class="tab-page">
+            <section class="section">
+                <div class="toolbar">
+                    <h2>Сессии</h2>
+                    <div class="row">
+                        <select id="session-filter" onchange="loadSessions()">
+                            <option value="">Все</option>
+                            <option value="reserved">Забронированные</option>
+                            <option value="active">Активные</option>
+                            <option value="paused">На паузе</option>
+                            <option value="finished">Завершённые</option>
+                            <option value="cancelled">Отменённые</option>
+                        </select>
+                        <button onclick="loadSessions()">Обновить</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Клиент</th>
+                        <th>Устройство</th>
+                        <th>Статус</th>
+                        <th>Начало</th>
+                        <th>Окончание</th>
+                        <th>Длительность, мин</th>
+                        <th>Фактическое время, мин</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sessions-table"></tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+</div>
+
+<div class="modal hidden" id="modal">
+    <div>
+        <div class="toolbar">
+            <h3 id="modal-title">Форма</h3>
+            <button class="secondary" onclick="closeModal()">X</button>
+        </div>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+    const api = '/api';
+    let halls = [], devices = [], clients = [], sessions = [];
+    let dashboardTimer = null;
+
+    const statusLabels = {
+        free: 'свободен', busy: 'занят', reserved: 'забронирован', paused: 'пауза',
+        expiring: 'истекает время', maintenance: 'техобслуживание', offline: 'оффлайн',
+        active: 'активна', finished: 'завершена', cancelled: 'отменена'
+    };
+
+    function esc(v) {
+        return $('<div>').text(v ?? '').html()
+    }
+
+    function fmtDate(v) {
+        return v ? new Date(v).toLocaleString('ru-RU') : ''
+    }
+
+    function statusBadge(status) {
+        return `<span class="status ${esc(status)}">${esc(statusLabels[status] || status)}</span>`
+    }
+
+    function msg(text, err = false) {
+        $('#message').html(text ? `<div class="card ${err ? 'error' : 'ok'}">${esc(text)}</div>` : '');
+        if (text) setTimeout(() => $('#message').empty(), 3000)
+    }
+
+    function showLogin() {
+        stopDashboardAutoRefresh();
+        $('#app').addClass('hidden');
+        $('#login-page').removeClass('hidden');
+        $('#password').val('').trigger('focus')
+    }
+
+    function showApp() {
+        startDashboardAutoRefresh();
+        $('#login-page').addClass('hidden');
+        $('#app').removeClass('hidden')
+    }
+
+    function startDashboardAutoRefresh() {
+        if (dashboardTimer) return;
+        dashboardTimer = setInterval(() => {
+            if (!$('#app').hasClass('hidden')) refreshDashboard().catch(e => console.error(e))
+        }, 30000)
+    }
+
+    function stopDashboardAutoRefresh() {
+        if (dashboardTimer) {
+            clearInterval(dashboardTimer);
+            dashboardTimer = null
+        }
+    }
+
+    function apiCall(method, url, data) {
+        return $.ajax({
+            url: api + url,
+            method,
+            data: data ? JSON.stringify(data) : undefined,
+            contentType: data ? 'application/json' : undefined
+        }).then(null, function (x) {
+            if (x.status === 401) {
+                showLogin()
+            }
+            return $.Deferred().reject(new Error((x.responseJSON && x.responseJSON.error) || x.statusText || 'request failed')).promise()
+        })
+    }
+
+    function openTab(name) {
+        $('.tab').removeClass('active');
+        $('.tab[data-tab="' + name + '"]').addClass('active');
+        $('.tab-page').removeClass('active');
+        $('#tab-' + name).addClass('active');
+        loadTab(name).catch(e => msg(e.message, true));
+    }
+
+    async function loadTab(name) {
+        if (name === 'dashboard') return refreshDashboard();
+        if (name === 'clients') return loadClients();
+        if (name === 'club') return Promise.all([loadHalls(), loadDevices()]);
+        if (name === 'sessions') return loadSessions();
+    }
+
+    $('.tab').on('click', function () {
+        openTab($(this).data('tab'))
+    });
+
+    async function checkAuth() {
+        try {
+            await apiCall('GET', '/auth/me');
+            showApp();
+            await loadInitialData()
+        } catch (e) {
+            showLogin()
+        }
+    }
+
+    async function loadInitialData() {
+        await Promise.all([loadHalls(), loadDevices(), loadClients(), loadSessions(), loadDashboard()]);
+    }
+
+    $('#login-form').on('submit', async function (e) {
+        e.preventDefault();
+        $('#login-error').text('');
+        try {
+            await apiCall('POST', '/auth/login', {login: $('#login').val(), password: $('#password').val()});
+            showApp();
+            await loadInitialData();
+            openTab('dashboard')
+        } catch (e) {
+            $('#login-error').text(e.message)
+        }
+    });
+
+    async function logout() {
+        try {
+            await $.ajax({url: api + '/auth/logout', method: 'POST'})
+        } finally {
+            showLogin()
+        }
+    }
+
+    async function refreshDashboard() {
+        await Promise.all([loadDashboard(), loadHalls(), loadDevices()]);
+    }
+
+    async function loadDashboard() {
+        let x = await apiCall('GET', '/dashboard');
+        Object.entries({
+            total: x.total,
+            free: x.free,
+            busy: x.busy,
+            reserved: x.reserved,
+            paused: x.paused,
+            expiring: x.expiring,
+            maintenance: x.maintenance,
+            offline: x.offline
+        })
+            .forEach(([k, v]) => $('#m-' + k).text(v));
+    }
+
+    async function loadHalls() {
+        halls = await apiCall('GET', '/halls');
+        renderMap();
+        renderHallAdmin();
+        renderDeviceTable()
+    }
+
+    async function loadDevices() {
+        devices = await apiCall('GET', '/devices');
+        renderMap();
+        renderDeviceTable()
+    }
+
+    async function loadClients() {
+        clients = await apiCall('GET', '/clients?search=' + encodeURIComponent($('#client-search').val() || ''));
+        $('#clients-table').html(clients.length ? clients.map(c => `<tr><td>${esc(c.full_name)}</td><td>${esc(c.phone)}</td><td><button onclick="editClient(${c.id})">Изменить</button></td></tr>`).join('') : '<tr><td colspan="3" class="empty">Клиенты не найдены</td></tr>');
+    }
+
+    async function loadSessions() {
+        sessions = await apiCall('GET', '/sessions?status=' + encodeURIComponent($('#session-filter').val() || ''));
+        $('#sessions-table').html(sessions.length ? sessions.map(s => `<tr><td>${esc(s.client_name)}</td><td>${esc(s.hall_name)} / ${esc(s.device_type)} ${s.device_number}</td><td>${statusBadge(s.status)}</td><td>${fmtDate(s.started_at)}</td><td>${fmtDate(s.planned_end_at)}</td><td>${esc(s.duration_minutes)}</td><td>${s.actual_duration_minutes == null ? '—' : esc(s.actual_duration_minutes)}</td><td>${sessionButtons(s)}</td></tr>`).join('') : '<tr><td colspan="8" class="empty">Сессий нет</td></tr>');
+    }
+
+    function sessionButtons(s) {
+        let b = '';
+        if (s.status === 'reserved') b += `<button onclick="action('/sessions/${s.id}/start')">Старт</button> `;
+        if (s.status === 'active') b += `<button onclick="action('/sessions/${s.id}/pause')">Пауза</button> `;
+        if (s.status === 'paused') b += `<button onclick="action('/sessions/${s.id}/resume')">Продолжить</button> `;
+        if (['reserved', 'active', 'paused'].includes(s.status)) {
+            b += `<button class="secondary" onclick="extend(${s.id})">+30 мин</button> `;
+            b += `<button class="secondary" onclick="transfer(${s.id})">Пересадить</button> `;
+            b += `<button class="danger" onclick="action('/sessions/${s.id}/finish')">Завершить</button>`;
+        }
+        return b;
+    }
+
+    async function action(url, data) {
+        try {
+            await apiCall('POST', url, data);
+            await Promise.all([loadDashboard(), loadDevices(), loadSessions()]);
+            renderMap();
+        } catch (e) {
+            msg(e.message, true)
+        }
+    }
+
+    async function extend(id) {
+        await action('/sessions/' + id + '/extend', {minutes: 30})
+    }
+
+    function renderMap() {
+        const out = halls.map(h => {
+            const hallDevices = devices.filter(d => d.hall_id === h.id);
+            return `<div class="hall"><h3>${esc(h.name)}</h3><div class="devices">${hallDevices.length ? hallDevices.map(d => `<button class="device ${esc(d.status)}" onclick="openDeviceSession(${d.id})"><b>${esc((d.type || '').toUpperCase())} ${d.number}</b>${d.name ? `<br><small>${esc(d.name)}</small>` : ''}<br><span>${esc(statusLabels[d.status] || d.status)}</span>${d.client_name ? `<br><small>${esc(d.client_name)}</small>` : ''}</button>`).join('') : '<span class="muted">Устройств нет</span>'}</div></div>`;
+        }).join('');
+        $('#club-map').html(out || '<span class="muted">Залы пока не созданы</span>');
+    }
+
+    function renderHallAdmin() {
+        $('#hall-admin').html(halls.length ? halls.map(h => `<div class="row" style="margin:8px 0"><b>${esc(h.name)}</b><span class="muted">${esc(h.description)}</span><button onclick="editHall(${h.id})">Изменить</button></div>`).join('') : '<div class="empty">Залы пока не созданы</div>');
+    }
+
+    function renderDeviceTable() {
+        $('#devices-table').html(devices.length ? devices.map(d => `<tr><td>${esc(d.hall_name)}</td><td><b>${esc((d.type || '').toUpperCase())} ${d.number}</b>${d.name ? `<br><small class="muted">${esc(d.name)}</small>` : ''}</td><td>${statusBadge(d.status)}</td><td>${d.client_name ? esc(d.client_name) : '<span class="muted">—</span>'}</td><td><button onclick="editDevice(${d.id})">Изменить</button></td></tr>`).join('') : '<tr><td colspan="5" class="empty">Устройства не созданы</td></tr>');
+    }
+
+    function openModal(title, html) {
+        $('#modal-title').text(title);
+        $('#modal-body').html(html);
+        $('#modal').removeClass('hidden')
+    }
+
+    function closeModal() {
+        $('#modal').addClass('hidden');
+        $('#modal-body').empty()
+    }
+
+    $('#modal').on('click', function (e) {
+        if (e.target === this) closeModal()
+    });
+
+    function openClientModal(c = {}) {
+        openModal(c.id ? 'Клиент' : 'Новый клиент', `<div>
+    <label for="f-name">ФИО</label>
+    <input id="f-name" title="ФИО клиента" placeholder="ФИО" value="${esc(c.full_name || '')}">
+    <label for="f-phone">Телефон</label>
+    <input id="f-phone" title="Номер телефона клиента" placeholder="Телефон" value="${esc(c.phone || '')}">
+    <div style="margin-top:12px"><button onclick="saveClient(${c.id || 0})">Сохранить</button></div>
+  </div>`)
+    }
+
+    async function saveClient(id) {
+        try {
+            await apiCall(id ? 'PUT' : 'POST', id ? '/clients/' + id : '/clients', {
+                full_name: $('#f-name').val(),
+                phone: $('#f-phone').val()
+            });
+            closeModal();
+            await loadClients();
+            msg('Сохранено')
+        } catch (e) {
+            msg(e.message, true)
+        }
+    }
+
+    async function editClient(id) {
+        let c = clients.find(x => x.id === id);
+        if (c) openClientModal(c)
+    }
+
+    function openHallModal(h = {}) {
+        openModal(h.id ? 'Зал' : 'Новый зал', `<div>
+    <label for="f-hall-name">Название зала</label>
+    <input id="f-hall-name" title="Название зала" placeholder="Название" value="${esc(h.name || '')}">
+    <label for="f-hall-desc">Описание</label>
+    <input id="f-hall-desc" title="Описание зала" placeholder="Описание" value="${esc(h.description || '')}">
+    <div style="margin-top:12px"><button onclick="saveHall(${h.id || 0})">Сохранить</button></div>
+  </div>`)
+    }
+
+    async function saveHall(id) {
+        try {
+            await apiCall(id ? 'PUT' : 'POST', id ? '/halls/' + id : '/halls', {
+                name: $('#f-hall-name').val(),
+                description: $('#f-hall-desc').val()
+            });
+            closeModal();
+            await Promise.all([loadHalls(), loadDevices(), loadDashboard()]);
+            msg('Сохранено')
+        } catch (e) {
+            msg(e.message, true)
+        }
+    }
+
+    async function editHall(id) {
+        let h = halls.find(x => x.id === id);
+        if (h) openHallModal(h)
+    }
+
+    function openDeviceModal(d = {}) {
+        const baseStatus = d.base_status || d.status || 'available';
+        openModal(d.id ? 'Устройство' : 'Новое устройство', `<div>
+    <label for="f-device-hall">Зал</label>
+    <select id="f-device-hall" title="Зал устройства">${halls.map(h => `<option value="${h.id}" ${h.id === d.hall_id ? 'selected' : ''}>${esc(h.name)}</option>`).join('')}</select>
+    <label for="f-device-type">Тип</label>
+    <select id="f-device-type" title="Тип устройства"><option value="pc" ${d.type === 'pc' ? 'selected' : ''}>PC</option><option value="console" ${d.type === 'console' ? 'selected' : ''}>Консоль</option></select>
+    <label for="f-device-number">Номер</label>
+    <input id="f-device-number" title="Номер устройства в зале" type="number" placeholder="Номер" value="${d.number || ''}">
+    <label for="f-device-name">Название</label>
+    <input id="f-device-name" title="Название или модель устройства" placeholder="Название" value="${esc(d.name || '')}">
+    <label for="f-device-status">Состояние</label>
+    <select id="f-device-status" title="Физическое состояние устройства">
+      <option value="available" ${baseStatus === 'available' ? 'selected' : ''}>Рабочее</option>
+      <option value="maintenance" ${baseStatus === 'maintenance' ? 'selected' : ''}>Техобслуживание</option>
+      <option value="offline" ${baseStatus === 'offline' ? 'selected' : ''}>Выключено</option>
+    </select>
+    <div style="margin-top:12px"><button onclick="saveDevice(${d.id || 0})">Сохранить</button></div>
+  </div>`)
+    }
+
+    async function saveDevice(id) {
+        try {
+            const data = {
+                hall_id: +$('#f-device-hall').val(),
+                type: $('#f-device-type').val(),
+                number: +$('#f-device-number').val(),
+                name: $('#f-device-name').val(),
+                status: $('#f-device-status').val()
+            };
+            await apiCall(id ? 'PUT' : 'POST', id ? '/devices/' + id : '/devices', data);
+            closeModal();
+            await Promise.all([loadDevices(), loadDashboard()]);
+            msg('Сохранено');
+        } catch (e) {
+            msg(e.message, true)
+        }
+    }
+
+    async function editDevice(id) {
+        let d = devices.find(x => x.id === id);
+        if (d) openDeviceModal(d)
+    }
+
+    function openDeviceSession(deviceID) {
+        let d = devices.find(x => x.id === deviceID);
+        if (!d || d.status !== 'free') return;
+        if (!clients.length) {
+            msg('Сначала добавьте клиента', true);
+            openTab('clients');
+            return
+        }
+        openModal('Быстрый вход', `<div>
+    <label for="f-session-client">Клиент</label>
+    <select id="f-session-client" title="Клиент клуба">${clients.map(c => `<option value="${c.id}">${esc(c.full_name)} — ${esc(c.phone)}</option>`).join('')}</select>
+    <label for="f-session-minutes">Длительность, минут</label>
+    <input id="f-session-minutes" title="Общая длительность сессии в минутах" type="number" min="1" value="120">
+    <label title="Создать сессию как бронирование"><input id="f-session-reserved" type="checkbox"> Забронировать</label>
+    <div style="margin-top:12px"><button onclick="createSession(${deviceID})">Создать</button></div>
+  </div>`)
+    }
+
+    async function createSession(deviceID) {
+        try {
+            await apiCall('POST', '/sessions', {
+                client_id: +$('#f-session-client').val(),
+                device_id: deviceID,
+                minutes: +$('#f-session-minutes').val(),
+                reserved: $('#f-session-reserved').is(':checked')
+            });
+            closeModal();
+            await Promise.all([loadDashboard(), loadDevices(), loadSessions()]);
+            openTab('sessions');
+            msg('Сессия создана')
+        } catch (e) {
+            msg(e.message, true)
+        }
+    }
+
+    async function transfer(id) {
+        let s = sessions.find(x => x.id === id);
+        if (!s) {
+            sessions = await apiCall('GET', '/sessions');
+            s = sessions.find(x => x.id === id)
+        }
+        const available = devices.filter(d => d.status === 'free' && d.id !== s.device_id);
+        if (!available.length) {
+            msg('Нет свободных устройств для пересадки', true);
+            return
+        }
+        openModal('Пересадка клиента', `<div>
+    <div class="muted" style="margin-bottom:10px">Клиент: ${esc(s.client_name)}</div>
+    <label for="f-transfer-device">Новое устройство</label>
+    <select id="f-transfer-device" title="Устройство для пересадки клиента">${available.map(d => `<option value="${d.id}">${esc(d.hall_name)} / ${esc((d.type || '').toUpperCase())} ${d.number}</option>`).join('')}</select>
+    <div style="margin-top:12px"><button onclick="saveTransfer(${id})">Пересадить</button></div>
+  </div>`)
+    }
+
+    async function saveTransfer(id) {
+        try {
+            await apiCall('POST', '/sessions/' + id + '/transfer', {device_id: +$('#f-transfer-device').val()});
+            closeModal();
+            await Promise.all([loadDashboard(), loadDevices(), loadSessions()]);
+            msg('Клиент пересажен')
+        } catch (e) {
+            msg(e.message, true)
+        }
+    }
+
+    checkAuth();
+</script>
+</body>
+</html>
